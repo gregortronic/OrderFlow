@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using OrderFlow.Api.Configuration;
+using OrderFlow.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,8 @@ builder.Services.AddControllers();
 
 builder.Services.Configure<ApplicationOptions>(
     builder.Configuration.GetSection(ApplicationOptions.SectionName));
+
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
