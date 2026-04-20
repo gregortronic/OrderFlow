@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OrderFlow.Application.Abstractions.Persistence;
 using OrderFlow.Infrastructure.Persistence;
+using OrderFlow.Infrastructure.Persistence.Repositories;
 
 namespace OrderFlow.Infrastructure;
 
@@ -16,6 +18,8 @@ public static class DependencyInjection
 
         services.AddDbContext<OrderFlowDbContext>(options =>
             options.UseNpgsql(connectionString));
+        
+        services.AddScoped<IOrderRepository, OrderRepository>();
 
         return services;
     }
