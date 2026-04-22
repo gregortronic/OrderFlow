@@ -20,6 +20,7 @@ public static class DependencyInjection
             options.UseNpgsql(connectionString));
         
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IDocumentJobRepository, DocumentJobRepository>();
 
         return services;
     }
