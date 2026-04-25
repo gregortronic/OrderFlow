@@ -1,4 +1,6 @@
-﻿using OrderFlow.Api.Contracts.Orders;
+﻿using OrderFlow.Api.Contracts.Common;
+using OrderFlow.Api.Contracts.Orders;
+using OrderFlow.Application.Common.Pagination;
 using OrderFlow.Application.Orders;
 
 namespace OrderFlow.Api.Mapping;
@@ -16,6 +18,14 @@ public static class OrderContractMappings
                     x.Quantity,
                     x.UnitPrice))
                 .ToList());
+    }
+
+    public static GetOrdersQuery ToQuery(this GetOrdersRequest request)
+    {
+        return new GetOrdersQuery(
+            Status: request.Status,
+            PageInfo: new PageRequest(request.Page, request.PageSize),
+            SortDirection: request.SortDirection);
     }
 
     public static OrderResponse ToResponse(this OrderDto order)
@@ -37,15 +47,23 @@ public static class OrderContractMappings
                 .ToList());
     }
 
-    public static IReadOnlyList<OrderListItemResponse> ToResponse(this IReadOnlyList<OrderListItemDto> orders)
+    public static PagedResponse<OrderListItemResponse> ToResponse(
+        this PagedResult<OrderListItemDto> orders)
     {
-        return orders
-            .Select(x => new OrderListItemResponse(
-                Id: x.Id,
-                CreatedAtUtc: x.CreatedAtUtc,
-                Status: x.Status,
-                ItemsCount: x.ItemsCount,
-                TotalAmount: x.TotalAmount))
-            .ToList();
+        return new PagedResponse<OrderListItemResponse>(
+            Items: orders.Items
+                .Select(x => new OrderListItemResponse(
+                    Id: x.Id,
+                    CreatedAtUtc: x.CreatedAtUtc,
+                    Status: x.Status,
+                    ItemsCount: x.ItemsCount,
+                    TotalAmount: x.TotalAmount))
+                .ToList(),
+            Page: orders.Page,
+            PageSize: orders.PageSize,
+            TotalCount: orders.TotalCount,
+            TotalPages: orders.TotalPages,
+            HasPreviousPage: orders.HasPreviousPage,
+            HasNextPage: orders.HasNextPage);
     }
 }

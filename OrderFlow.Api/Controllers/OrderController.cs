@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using OrderFlow.Api.Contracts.Common;
 using OrderFlow.Api.Contracts.Orders;
 using OrderFlow.Api.Mapping;
 using OrderFlow.Application.Orders;
@@ -39,10 +40,14 @@ public sealed class OrdersController(IOrderApplicationService orderApplicationSe
     }
 
     [HttpGet]
-    [ProducesResponseType<IReadOnlyList<OrderListItemResponse>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<OrderListItemResponse>>> GetList(CancellationToken cancellationToken)
+    [ProducesResponseType<PagedResponse<OrderListItemResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<PagedResponse<OrderListItemResponse>>> GetList(
+        [FromQuery] GetOrdersRequest request,
+        CancellationToken cancellationToken)
     {
-        var orders = await orderApplicationService.GetListAsync(cancellationToken);
+        var orders =
+            await orderApplicationService.GetListAsync(request.ToQuery(), cancellationToken);
         return Ok(orders.ToResponse());
     }
 }

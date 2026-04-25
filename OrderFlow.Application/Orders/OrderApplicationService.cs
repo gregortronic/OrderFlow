@@ -1,4 +1,5 @@
 ﻿using OrderFlow.Application.Abstractions.Persistence;
+using OrderFlow.Application.Common.Pagination;
 using OrderFlow.Domain.Common;
 using OrderFlow.Domain.Orders;
 
@@ -35,11 +36,15 @@ public sealed class OrderApplicationService(IOrderRepository orderRepository) : 
         return order?.ToDto();
     }
 
-    public async Task<IReadOnlyList<OrderListItemDto>> GetListAsync(CancellationToken cancellationToken = default)
+    public async Task<PagedResult<OrderListItemDto>> GetListAsync(
+        GetOrdersQuery query,
+        CancellationToken cancellationToken = default)
     {
-        var orders = await orderRepository.GetListAsync(cancellationToken);
-        return orders.Select(x => x.ToListItemDto()).ToList();
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await orderRepository.GetListAsync(query, cancellationToken);
     }
+
 }
 
 internal static class OrderMappings
