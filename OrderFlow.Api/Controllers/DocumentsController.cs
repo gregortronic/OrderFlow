@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using OrderFlow.Api.Contracts.Common;
 using OrderFlow.Api.Contracts.Documents;
 using OrderFlow.Api.Mapping;
 using OrderFlow.Application.Documents;
@@ -39,10 +40,14 @@ public sealed class DocumentsController(IDocumentJobApplicationService documentJ
     }
 
     [HttpGet]
-    [ProducesResponseType<IReadOnlyList<DocumentJobListItemResponse>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<DocumentJobListItemResponse>>> GetList(CancellationToken cancellationToken)
+    [ProducesResponseType<PagedResponse<DocumentJobListItemResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<PagedResponse<DocumentJobListItemResponse>>> GetList(
+        [FromQuery] GetDocumentJobsRequest request,
+        CancellationToken cancellationToken)
     {
-        var documentJobs = await documentJobApplicationService.GetListAsync(cancellationToken);
+        var documentJobs = 
+            await documentJobApplicationService.GetListAsync(request.ToQuery(), cancellationToken);
         return Ok(documentJobs.ToResponse());
     }
 }

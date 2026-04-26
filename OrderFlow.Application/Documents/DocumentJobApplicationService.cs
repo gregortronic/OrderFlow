@@ -1,5 +1,6 @@
 ﻿﻿using OrderFlow.Application.Abstractions.Persistence;
-using OrderFlow.Domain.Documents;
+ using OrderFlow.Application.Common.Pagination;
+ using OrderFlow.Domain.Documents;
 
 namespace OrderFlow.Application.Documents;
 
@@ -31,11 +32,15 @@ public sealed class DocumentJobApplicationService(IDocumentJobRepository documen
         return documentJob?.ToDto();
     }
 
-    public async Task<IReadOnlyList<DocumentJobListItemDto>> GetListAsync(CancellationToken cancellationToken = default)
+    public async Task<PagedResult<DocumentJobListItemDto>> GetListAsync(
+        GetDocumentJobsQuery query,
+        CancellationToken cancellationToken = default)
     {
-        var documentJobs = await documentJobRepository.GetListAsync(cancellationToken);
-        return documentJobs.Select(x => x.ToListItemDto()).ToList();
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await documentJobRepository.GetListAsync(query, cancellationToken);
     }
+
 
     private static string GenerateStoredFileName(string originalFileName)
     {

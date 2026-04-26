@@ -1,4 +1,6 @@
-﻿using OrderFlow.Api.Contracts.Documents;
+﻿using OrderFlow.Api.Contracts.Common;
+using OrderFlow.Api.Contracts.Documents;
+using OrderFlow.Application.Common.Pagination;
 using OrderFlow.Application.Documents;
 
 namespace OrderFlow.Api.Mapping;
@@ -10,6 +12,14 @@ public static class DocumentJobContractMappings
         return new CreateDocumentJobCommand(
             OriginalFileName: request.OriginalFileName,
             ContentType: request.ContentType);
+    }
+
+    public static GetDocumentJobsQuery ToQuery(this GetDocumentJobsRequest request)
+    {
+        return new GetDocumentJobsQuery(
+            Status: request.Status,
+            PageInfo: new PageRequest(request.Page, request.PageSize),
+            SortDirection: request.SortDirection);
     }
 
     public static DocumentJobResponse ToResponse(this DocumentJobDto documentJob)
@@ -26,17 +36,24 @@ public static class DocumentJobContractMappings
             ErrorMessage: documentJob.ErrorMessage);
     }
 
-    public static IReadOnlyList<DocumentJobListItemResponse> ToResponse(
-        this IReadOnlyList<DocumentJobListItemDto> documentJobs)
+    public static PagedResponse<DocumentJobListItemResponse> ToResponse(
+        this PagedResult<DocumentJobListItemDto> documentJobs)
     {
-        return documentJobs
-            .Select(x => new DocumentJobListItemResponse(
-                Id: x.Id,
-                OriginalFileName: x.OriginalFileName,
-                ContentType: x.ContentType,
-                Status: x.Status,
-                CreatedAtUtc: x.CreatedAtUtc,
-                FinishedAtUtc: x.FinishedAtUtc))
-            .ToList();
+        return new PagedResponse<DocumentJobListItemResponse>(
+            Items: documentJobs.Items
+                .Select(x => new DocumentJobListItemResponse(
+                    Id: x.Id,
+                    OriginalFileName: x.OriginalFileName,
+                    ContentType: x.ContentType,
+                    Status: x.Status,
+                    CreatedAtUtc: x.CreatedAtUtc,
+                    FinishedAtUtc: x.FinishedAtUtc))
+                .ToList(),
+            Page: documentJobs.Page,
+            PageSize: documentJobs.PageSize,
+            TotalCount: documentJobs.TotalCount,
+            TotalPages: documentJobs.TotalPages,
+            HasPreviousPage: documentJobs.HasPreviousPage,
+            HasNextPage: documentJobs.HasNextPage);
     }
 }
