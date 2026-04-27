@@ -1,12 +1,12 @@
 ﻿using OrderFlow.Application.Common.Sorting;
-using OrderFlow.Domain.Documents;
+using OrderFlow.Domain.Orders;
 
-namespace OrderFlow.Infrastructure.Persistence.QueryExtensions;
+namespace OrderFlow.Infrastructure.Persistence.Repositories.QueryExtensions;
 
-public static class DocumentJobQueryableExtensions
+internal static class OrderQueryableExtensions
 {
-    public static IOrderedQueryable<DocumentJob> OrderByCreatedAt(
-        this IQueryable<DocumentJob> source,
+    public static IOrderedQueryable<Order> OrderByCreatedAt(
+        this IQueryable<Order> source,
         SortDirection direction)
     {
         return direction == SortDirection.Asc

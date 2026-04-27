@@ -3,7 +3,6 @@
 public sealed record DocumentJobResponse(
     Guid Id,
     string OriginalFileName,
-    string StoredFileName,
     string ContentType,
     string Status,
     DateTimeOffset CreatedAtUtc,

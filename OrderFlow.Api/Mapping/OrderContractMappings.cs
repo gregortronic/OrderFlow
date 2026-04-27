@@ -52,12 +52,7 @@ public static class OrderContractMappings
     {
         return new PagedResponse<OrderListItemResponse>(
             Items: orders.Items
-                .Select(x => new OrderListItemResponse(
-                    Id: x.Id,
-                    CreatedAtUtc: x.CreatedAtUtc,
-                    Status: x.Status,
-                    ItemsCount: x.ItemsCount,
-                    TotalAmount: x.TotalAmount))
+                .Select(ToResponse)
                 .ToList(),
             Page: orders.Page,
             PageSize: orders.PageSize,
@@ -65,5 +60,15 @@ public static class OrderContractMappings
             TotalPages: orders.TotalPages,
             HasPreviousPage: orders.HasPreviousPage,
             HasNextPage: orders.HasNextPage);
+    }
+    
+    private static OrderListItemResponse ToResponse(this OrderListItemDto item)
+    {
+        return new OrderListItemResponse(
+            Id: item.Id,
+            CreatedAtUtc: item.CreatedAtUtc,
+            Status: item.Status,
+            ItemsCount: item.ItemsCount,
+            TotalAmount: item.TotalAmount);
     }
 }

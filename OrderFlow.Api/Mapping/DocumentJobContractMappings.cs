@@ -27,7 +27,6 @@ public static class DocumentJobContractMappings
         return new DocumentJobResponse(
             Id: documentJob.Id,
             OriginalFileName: documentJob.OriginalFileName,
-            StoredFileName: documentJob.StoredFileName,
             ContentType: documentJob.ContentType,
             Status: documentJob.Status,
             CreatedAtUtc: documentJob.CreatedAtUtc,

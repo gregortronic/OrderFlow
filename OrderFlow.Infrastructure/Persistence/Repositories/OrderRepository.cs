@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OrderFlow.Application.Abstractions.Persistence;
 using OrderFlow.Application.Common.Pagination;
-using OrderFlow.Application.Common.Sorting;
 using OrderFlow.Application.Orders;
 using OrderFlow.Domain.Orders;
-using OrderFlow.Infrastructure.Persistence.QueryExtensions;
+using OrderFlow.Infrastructure.Persistence.Repositories.QueryExtensions;
 
 namespace OrderFlow.Infrastructure.Persistence.Repositories;
 
