@@ -10,6 +10,8 @@ public interface IDocumentJobRepository
 
     Task<DocumentJob?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
+    Task<DocumentJob?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default);
+
     Task<PagedResult<DocumentJobListItemDto>> GetListAsync(
         GetDocumentJobsQuery query,
         CancellationToken cancellationToken = default);

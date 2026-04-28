@@ -21,6 +21,12 @@ public sealed class DocumentJobRepository(OrderFlowDbContext dbContext) : IDocum
             .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public Task<DocumentJob?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return dbContext.DocumentJobs
+            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+    }
+
     public async Task<PagedResult<DocumentJobListItemDto>> GetListAsync(
         GetDocumentJobsQuery request,
         CancellationToken cancellationToken = default)
@@ -33,7 +39,7 @@ public sealed class DocumentJobRepository(OrderFlowDbContext dbContext) : IDocum
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
-        
+
         var rows = await query
             .OrderByCreatedAt(request.SortDirection)
             .Skip(request.PageInfo.Skip)

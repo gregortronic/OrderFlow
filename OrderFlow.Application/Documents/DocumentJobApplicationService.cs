@@ -1,6 +1,7 @@
-﻿﻿using OrderFlow.Application.Abstractions.Persistence;
- using OrderFlow.Application.Common.Pagination;
- using OrderFlow.Domain.Documents;
+﻿using OrderFlow.Application.Abstractions.Persistence;
+using OrderFlow.Application.Common.Exceptions;
+using OrderFlow.Application.Common.Pagination;
+using OrderFlow.Domain.Documents;
 
 namespace OrderFlow.Application.Documents;
 
@@ -20,16 +21,74 @@ public sealed class DocumentJobApplicationService(IDocumentJobRepository documen
             storedFileName: storedFileName,
             contentType: command.ContentType);
 
+        documentJob.MarkQueued();
+
         await documentJobRepository.AddAsync(documentJob, cancellationToken);
         await documentJobRepository.SaveChangesAsync(cancellationToken);
 
         return documentJob.ToDto();
     }
 
-    public async Task<DocumentJobDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<DocumentJobDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var documentJob = await documentJobRepository.GetByIdAsync(id, cancellationToken);
-        return documentJob?.ToDto();
+
+        return documentJob is null 
+            ? throw new NotFoundException($"Document job '{id}' was not found.") 
+            : documentJob.ToDto();
+    }
+
+    public async Task<DocumentJobDto> StartProcessingAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        var documentJob = await GetRequiredForUpdateAsync(id, cancellationToken);
+
+        documentJob.StartProcessing();
+
+        await documentJobRepository.SaveChangesAsync(cancellationToken);
+
+        return documentJob.ToDto();
+    }
+
+    public async Task<DocumentJobDto> CompleteAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        var documentJob = await GetRequiredForUpdateAsync(id, cancellationToken);
+
+        documentJob.Complete();
+
+        await documentJobRepository.SaveChangesAsync(cancellationToken);
+
+        return documentJob.ToDto();
+    }
+
+    public async Task<DocumentJobDto> FailAsync(
+        Guid id,
+        string errorMessage,
+        CancellationToken cancellationToken = default)
+    {
+        var documentJob = await GetRequiredForUpdateAsync(id, cancellationToken);
+
+        documentJob.Fail(errorMessage);
+
+        await documentJobRepository.SaveChangesAsync(cancellationToken);
+
+        return documentJob.ToDto();
+    }
+
+    public async Task<DocumentJobDto> CancelAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        var documentJob = await GetRequiredForUpdateAsync(id, cancellationToken);
+
+        documentJob.Cancel();
+
+        await documentJobRepository.SaveChangesAsync(cancellationToken);
+
+        return documentJob.ToDto();
     }
 
     public async Task<PagedResult<DocumentJobListItemDto>> GetListAsync(
@@ -41,6 +100,14 @@ public sealed class DocumentJobApplicationService(IDocumentJobRepository documen
         return await documentJobRepository.GetListAsync(query, cancellationToken);
     }
 
+    private async Task<DocumentJob> GetRequiredForUpdateAsync(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var documentJob = await documentJobRepository.GetByIdForUpdateAsync(id, cancellationToken);
+
+        return documentJob ?? throw new NotFoundException($"Document job '{id}' was not found.");
+    }
 
     private static string GenerateStoredFileName(string originalFileName)
     {
