@@ -27,14 +27,10 @@ public sealed class OrdersController(IOrderApplicationService orderApplicationSe
 
     [HttpGet("{id:guid}")]
     [ProducesResponseType<OrderResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<OrderResponse>> GetById(Guid id, CancellationToken cancellationToken)
     {
         var order = await orderApplicationService.GetByIdAsync(id, cancellationToken);
-        if (order is null)
-        {
-            return NotFound();
-        }
 
         return Ok(order.ToResponse());
     }
@@ -46,8 +42,19 @@ public sealed class OrdersController(IOrderApplicationService orderApplicationSe
         [FromQuery] GetOrdersRequest request,
         CancellationToken cancellationToken)
     {
-        var orders =
-            await orderApplicationService.GetListAsync(request.ToQuery(), cancellationToken);
+        var orders = await orderApplicationService.GetListAsync(request.ToQuery(), cancellationToken);
+
         return Ok(orders.ToResponse());
+    }
+
+    [HttpPost("{id:guid}/cancel")]
+    [ProducesResponseType<OrderResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<OrderResponse>> Cancel(Guid id, CancellationToken cancellationToken)
+    {
+        var order = await orderApplicationService.CancelAsync(id, cancellationToken);
+
+        return Ok(order.ToResponse());
     }
 }

@@ -1,6 +1,6 @@
 ﻿using OrderFlow.Application.Abstractions.Persistence;
+using OrderFlow.Application.Common.Exceptions;
 using OrderFlow.Application.Common.Pagination;
-using OrderFlow.Domain.Common;
 using OrderFlow.Domain.Orders;
 
 namespace OrderFlow.Application.Orders;
@@ -25,10 +25,29 @@ public sealed class OrderApplicationService(IOrderRepository orderRepository) : 
         return order.ToDto();
     }
 
-    public async Task<OrderDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<OrderDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var order = await orderRepository.GetByIdAsync(id, cancellationToken);
-        return order?.ToDto();
+
+        return order is null 
+            ? throw new NotFoundException($"Order '{id}' was not found.") 
+            : order.ToDto();
+    }
+
+    public async Task<OrderDto> CancelAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var order = await orderRepository.GetByIdForUpdateAsync(id, cancellationToken);
+
+        if (order is null)
+        {
+            throw new NotFoundException($"Order '{id}' was not found.");
+        }
+
+        order.Cancel();
+
+        await orderRepository.SaveChangesAsync(cancellationToken);
+
+        return order.ToDto();
     }
 
     public async Task<PagedResult<OrderListItemDto>> GetListAsync(

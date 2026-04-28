@@ -10,7 +10,11 @@ public interface IOrderRepository
 
     Task<Order?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<PagedResult<OrderListItemDto>> GetListAsync(GetOrdersQuery query, CancellationToken cancellationToken = default);
+    Task<Order?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<PagedResult<OrderListItemDto>> GetListAsync(
+        GetOrdersQuery query,
+        CancellationToken cancellationToken = default);
 
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

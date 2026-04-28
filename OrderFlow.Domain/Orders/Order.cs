@@ -45,6 +45,11 @@ public sealed class Order
 
     public void AddItem(Guid productId, string sku, string productName, int quantity, decimal unitPrice)
     {
+        if (Status != OrderStatus.Draft)
+        {
+            throw new DomainException("Items can be added only to draft orders.");
+        }
+
         if (productId == Guid.Empty)
         {
             throw new DomainException("ProductId must not be empty.");
@@ -77,5 +82,19 @@ public sealed class Order
             productName: productName.Trim(),
             quantity: quantity,
             unitPrice: unitPrice));
+    }
+
+    public void Cancel()
+    {
+        switch (Status)
+        {
+            case OrderStatus.Cancelled:
+                return;
+            case OrderStatus.Reserved:
+                throw new DomainException("Reserved orders cannot be cancelled before releasing reservation.");
+            default:
+                Status = OrderStatus.Cancelled;
+                break;
+        }
     }
 }

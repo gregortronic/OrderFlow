@@ -22,6 +22,13 @@ public sealed class OrderRepository(OrderFlowDbContext dbContext) : IOrderReposi
             .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public Task<Order?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return dbContext.Orders
+            .Include(x => x.Items)
+            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+    }
+
     public async Task<PagedResult<OrderListItemDto>> GetListAsync(
         GetOrdersQuery request,
         CancellationToken cancellationToken = default)
@@ -34,7 +41,7 @@ public sealed class OrderRepository(OrderFlowDbContext dbContext) : IOrderReposi
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
-        
+
         var rows = await query
             .OrderByCreatedAt(request.SortDirection)
             .Skip(request.PageInfo.Skip)
