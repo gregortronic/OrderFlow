@@ -29,11 +29,11 @@
 - [x] Domain entities и enum-статусы
 - [x] EF Core + PostgreSQL
 - [x] Initial migration
-- [ ] Orders API
-- [ ] Documents API
-- [ ] DTO + базовая валидация
-- [ ] Пагинация / фильтрация / сортировка
-- [ ] Global exception handling
+- [x] Orders API
+- [x] Documents API
+- [x] DTO + базовая валидация
+- [x] Пагинация / фильтрация / сортировка
+- [x] Global exception handling
 - [ ] Structured logging
 
 ### 2. Async processing
